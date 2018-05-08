@@ -293,10 +293,10 @@ class Traffic {
                 queueIterator = queueList.iterator();
             } // end WHILE queueIterator
             double lastNumOfPeople = rooms.parallelStream().mapToDouble(ZoneElement::getNumPeople).sum();
-            double limit = 1E-3;
             // Если в здании осталось меньше 0.001 человека, то прекращаем работу
+            double limit = 1E-3;
             if (lastNumOfPeople <= limit) break;
-            if (!rooms.isEmpty() && lastNumOfPeople > limit) return Double.NaN;
+            if (queueList.isEmpty()) break;
         }
 
         return isEnded() ? calcDivTime(-1) : calcDivTime(1);

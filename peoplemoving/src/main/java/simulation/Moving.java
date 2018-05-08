@@ -53,25 +53,35 @@ public class Moving {
         Traffic traffic = new Traffic(bim);
         bim.addSlice(evacuationTime);
 
-        int repeater = -1;
+        int nMaxRepeat = 10;
+        int repeater = nMaxRepeat;
         int acceptRepeat = 10000; // Максимальное кол-во проходов по циклу (Для избежания зацикливания)
-        double balance = 0;
+        double nTimeStep = 0;
+        double nNumOfPeopleOut = 0;
+        double nNumOfPeopleOutCurrent = 0;
         for (int i = 0; i < acceptRepeat; i++) {
             // Блокировка помещений ОФП по времени
-            if (bim.isFire()) blockingZone(balance);
+            if (bim.isFire()) blockingZone(nTimeStep);
 
-            balance = traffic.footTraffic();
+            nTimeStep = traffic.footTraffic();
+            nNumOfPeopleOutCurrent = bim.getOutdoorElement().getNumPeople();
 
-            if (Double.isNaN(balance)) {
-                repeater = 0;
+            if (nTimeStep < 0) {
+                evacuationTime += (-1) * nTimeStep;
+                break;
+            } else {
+                // Смотрим, не повторяется ли количество людей, которые уже вышли в безопасную зону.
+                // Если начинает повторяться, начинаем уменьшать счетчик
+                if (Double.compare(nNumOfPeopleOut, nNumOfPeopleOutCurrent) == 0) repeater--;
+                else {
+                    nNumOfPeopleOut = nNumOfPeopleOutCurrent;
+                    repeater = nMaxRepeat;
+                }
                 // Остановка расчета, если количество вышедшых людей не меняется
                 // Такое случается при блокировке путей эвакуации ОФП или ошибках
-                break;
-            } else if (balance < 0) {
-                evacuationTime += (-1) * balance;
-                break;
+                if (repeater == 0) break;
             }
-            evacuationTime += balance;
+            evacuationTime += nTimeStep;
 
             bim.addSlice(evacuationTime);
             // Возвращаем стандартные параметры для некоторых полей элемента
@@ -82,8 +92,7 @@ public class Moving {
             bim.getExits().values().parallelStream().forEach(e -> e.setTay(0));
             bim.getInternalDoors().values().parallelStream().forEach(e -> e.setTay(0));
 
-            double p = bim.getOutdoorElement().getNumPeople();
-            log.debug("In progress: number of people in Safety zone: {}, simulation time: {}", p, evacuationTime);
+            log.debug("In progress: number of people in Safety zone: {}, simulation time: {}", nNumOfPeopleOutCurrent, evacuationTime);
         }
 
         bim.addSlice(evacuationTime);
@@ -95,15 +104,14 @@ public class Moving {
             log.debug("Successful finish simulation. Total: number of people in Safety zone: {} of {}, simulation "
                     + "time: {}", bim.getOutdoorElement().getNumPeople(), numOfPeople0, nEvacTime);
         } else {
-            double p = bim.getOutdoorElement().getNumPeople();
             nMessage.add("При текущих условиях конфигурации и распространения опасных факторов пожара не все люди " +
                     "смогут эвакуаироваться.").add("В здании останутся люди.");
             log.debug("WARNING The program got into a loop. Total: number of people in Safety zone: {} of {}, "
-                    + "simulation time: {}", p, numOfPeople0, nEvacTime);
+                    + "simulation time: {}", nNumOfPeopleOutCurrent, numOfPeople0, nEvacTime);
             log.debug("Помещения, в которых остались люди:");
 
             nMessage.add("Помещения, в которых остались люди на момент остановки программы:");
-            bim.getZones().values().stream().filter(e -> e.getNumPeople() > 0.0)
+            bim.getZones().values().stream().filter(e -> e.getNumPeople() > 1e-02)
                     .forEach(e -> {
                         nMessage.add("\t" + e.getName() + "\t" + e.getNumPeople() + " чел.");
                         log.debug("{}", e.getId());
