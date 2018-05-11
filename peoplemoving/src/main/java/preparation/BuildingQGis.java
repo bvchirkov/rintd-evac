@@ -4,7 +4,6 @@ import collect.Collector;
 import distribution.Distribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.eesystem.parser4builder.json.impl.Size;
 import ru.eesystem.parser4builder.json.structure.BIM;
 import ru.eesystem.parser4builder.json.structure.BuildElement;
 import ru.eesystem.parser4builder.json.structure.Level;
@@ -117,8 +116,7 @@ public class BuildingQGis {
         nElem.setSizeZ(0);
         nElem.setXY(null);
         nElem.setType(-1);
-        ArrayList<String> Output = new ArrayList<>();
-        Output.addAll(exits.keySet());
+        ArrayList<String> Output = new ArrayList<>(exits.keySet());
         nElem.setOutput(Output);
         outdoorElement = new OutdoorElement(nElem);
     }
@@ -204,13 +202,6 @@ public class BuildingQGis {
         numOfPeople = 0.0;
         zones.values().forEach(v -> numOfPeople += v.getNumPeople());
         return numOfPeople;
-    }
-
-    /**
-     * @return размеры здания в виде объекта класса {@link Size}
-     */
-    public Size getSizeBuilding() {
-        return null;
     }
 
     /**
