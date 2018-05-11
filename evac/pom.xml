@@ -31,6 +31,7 @@
         <module>../peoplemoving</module>
         <module>../ModelOfSystem</module>
         <module>../researches</module>
+        <module>../simview</module>
     </modules>
 
 </project>
