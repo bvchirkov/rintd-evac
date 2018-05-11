@@ -114,7 +114,7 @@ public class DoorElement {
      * @param pNumOfPeople количество людей
      */
     public void addTransitPeople(double pNumOfPeople) {
-        transitPeople += pNumOfPeople;
+        transitPeople = pNumOfPeople;
     }
 
     /**
@@ -236,7 +236,7 @@ public class DoorElement {
     /**
      * @return идентификатор помещения, в которое люди перемещаются через текущую дверь
      */
-    public String getDirection() {
+    public String getDirectionId() {
         return direction;
     }
 

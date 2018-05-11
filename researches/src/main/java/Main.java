@@ -13,6 +13,7 @@ import simulation.Moving;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
@@ -55,11 +56,10 @@ public class Main {
         log.info(mov.getMessage() + "\n" + nSummaryCollector.getSummaryTable());
 
         FileHandler nFileHandler = new FileHandler();
-        String nPath = selectPathToResultsFolder(nWorkspace, eProp, nBuildingFile);
-        nFileHandler.save(nPath + nSeparator + eProp.getFileName() + "_z.csv", nSummaryCollector.getZonesTable());
-        //TODO nFileHandler.save(nPath + nSeparator + eProp.getFileName() + "_d.csv", nSummaryCollector.getDoorsTable());
-        nFileHandler.save(nPath + nSeparator + eProp.getFileName() + "_out.txt", mov.getMessage() + "\n" +
-                nSummaryCollector.getSummaryTable());
+        String nPath = selectPathToResultsFolder(nWorkspace, eProp, nBuildingFile) + nSeparator + eProp.getFileName();
+        nFileHandler.save(nPath + "_z.csv", nSummaryCollector.getZonesTable());
+        nFileHandler.save(nPath + "_d.csv", nSummaryCollector.getDoorsTable());
+        nFileHandler.save(nPath + "_out.txt", mov.getMessage() + "\n" + nSummaryCollector.getSummaryTable());
     }
 
     private static String selectPathToResultsFolder(String nWorkspace, EvacPropertiesLoader eProp, File nBuildingFile) {
@@ -77,7 +77,7 @@ public class Main {
                 log.error("Папка для результатов не создана. Результаты сохранены корневой в дирректории: {}", nPath);
             }
         } else nPath = "/tmp";
-        
+
         return nPath;
     }
 
@@ -97,7 +97,7 @@ public class Main {
     private static String selectFileOrDefault(File pFile, String pDefault) {
         String nResultPath;
         if (pFile.exists()) nResultPath = pFile.getPath();
-        else nResultPath = Main.class.getClassLoader().getResource(pDefault).getPath();
+        else nResultPath = Objects.requireNonNull(Main.class.getClassLoader().getResource(pDefault)).getPath();
 
         return nResultPath;
     }

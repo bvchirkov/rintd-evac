@@ -127,13 +127,13 @@ public class SummaryCollector implements Collector {
         };
 
         StringJoiner nColumnsNames = new StringJoiner(delimiter, "", "\n"); // Названия столбцов
-        nColumnsNames.add(nRowsNames[0][0]);
+        nColumnsNames.add("#" + nRowsNames[0][0]);
 
         StringJoiner nUnits = new StringJoiner(delimiter, "", "\n"); // Единицы измерения
-        nUnits.add(nRowsNames[0][1]);
+        nUnits.add("#" + nRowsNames[0][1]);
 
         StringJoiner nIdDoor = new StringJoiner(delimiter, "", "\n"); // ID дверей
-        nIdDoor.add("");
+        nIdDoor.add("#");
 
         StringJoiner nRowsTable = new StringJoiner("\n"); // Строки данных по времени
         // Обход всех срезов
@@ -147,9 +147,11 @@ public class SummaryCollector implements Collector {
                 nRow.append(scienceFmt(nDoor.getTransitPeople())).append(delimiter); //Количество прошедших ч/з дверь людей
                 // Направление движения
                 // null возникает, потому что до начала моделирования движения нет
-                if (nDoor.getDirection() == null) nRow.append("NULL").append(delimiter);
-                else
-                    nRow.append(nDoor.getDirection().split("-")[4].replace("}", "")).append(delimiter);
+                if (nDoor.getDirectionId() == null) nRow.append("NULL").append(delimiter);
+                else {
+                    String nShortName = nDoor.getDirectionId().split("-")[4].replace("}", "");
+                    nRow.append(nShortName).append(delimiter);
+                }
 
                 // Заполнение шапки таблицы
                 if (!isHeaderInstalled)
@@ -239,12 +241,20 @@ public class SummaryCollector implements Collector {
     }
 
     /**
-     * Научный формат данных
+     * Научный формат данных в зависимости от ОС. Excel хочет видеть точку в качестве разделителя целой и дробной части,
+     * а LibreOffice Calc - запятую.
      *
      * @param v значение
      * @return форматированная строка
      */
     private String scienceFmt(double v) {
-        return String.format("%6.3e", v);
+        String nFmtString = String.format("%6.3e", v);
+        String nOs = System.getProperty("os.name").toLowerCase();
+        if (nOs.contains("windows"))
+            nFmtString = nFmtString.replace(",", ".");
+        else if (nOs.contains("linux"))
+            nFmtString = nFmtString.replace(".", ",");
+
+        return nFmtString;
     }
 }

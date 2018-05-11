@@ -112,7 +112,7 @@ public class BuildingQGis {
         nElem.setSign(Sign.Outdoor);
         nElem.setNumPeople(0);
         nElem.setName("Safety Zone");
-        nElem.setId("outdoor0");
+        nElem.setId("{00000000-0000-0000-0000-out_space001}");
         nElem.setSizeZ(0);
         nElem.setXY(null);
         nElem.setType(-1);
