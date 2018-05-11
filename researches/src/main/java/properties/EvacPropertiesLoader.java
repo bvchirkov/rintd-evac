@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class EvacPropertiesLoader {
-    final Logger log = LoggerFactory.getLogger(EvacPropertiesLoader.class);
+    private final Logger log = LoggerFactory.getLogger(EvacPropertiesLoader.class);
 
     private String pathToProperties;
     private String bimFile;
@@ -139,40 +139,7 @@ public class EvacPropertiesLoader {
             }
         }
 
-        final String sDistributionSeed = "distribution.seed";
-        if (prop.getProperty(sDistributionSeed) == null) {
-            log.error("Неполадки с полем {}. Работа программы остановлена. Проверте конфигурационный файл {}", sDistributionSeed, pathToProperties);
-            System.exit(0);
-        } else {
-            String distributionSeed = prop.getProperty(sDistributionSeed);
-            if (distributionSeed.isEmpty()) {
-                log.error("Не указана информация о начальном значении генератора случайных чисел: {} \n" +
-                        "Допустимо указывать только целые числа больше нуля.", sDistributionSeed);
-            } else {
-                try {
-                    seed = Integer.parseInt(distributionSeed);
-                } catch (NumberFormatException e) {
-                    log.error("Возникли проблемы при чтении значения поля {}. Проверте правильность " +
-                            "написания значения\n", sDistributionSeed, e);
-                }
-                log.info("{} = {}", sDistributionSeed, seed);
-            }
-        }
-
-        /*final String sResultsFolder = "results.folder";
-        if (prop.getProperty(sResultsFolder) == null) {
-            log.error("Неполадки с полем {}. Работа программы остановлена. Проверте конфигурационный файл {}", sResultsFolder, pathToProperties);
-            System.exit(0);
-        } else {
-            String resFolder = prop.getProperty(sResultsFolder);
-            if (resFolder.isEmpty()) {
-                log.error("Не указана папка для сохранения результатов");
-            } else {
-                resultsFolder = new File(resFolder);
-                log.info("{} = {}", sResultsFolder, resultsFolder);
-            }
-        }*/
-
+        seed = Integer.parseInt(getPropValueStr("distribution.seed", prop));
         resultsFolder = getPropValueStr("results.folder", prop);
         cfastFile = getPropValueStr("bim.fire.file", prop);
         isFire = Boolean.parseBoolean(getPropValueStr("bim.fire.is", prop));
